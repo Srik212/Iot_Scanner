@@ -1,0 +1,28 @@
+ body {
+    background: linear-gradient(135deg, #54606c, #efedef);
+    background-size: 400% 400%;
+    animation: gradient 10s ease infinite;
+} 
+.navbar-brand{
+    color: #e7e8e9;
+}
+#particles-js {
+    width:100%;
+    height:90%;
+    position:absolute;
+    z-index:-1;
+}
+.center-text {
+    text-align: center;
+}
+
+.bold-black {
+    font-weight: bolder;
+    color: black;
+}
+
+.bd-text{
+    font-weight: bolder;
+}
+
+
