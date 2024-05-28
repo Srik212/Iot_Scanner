@@ -1,0 +1,40 @@
+<!-- Login Page-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IOT Scanner - Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">    
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}"> 
+</head>
+
+<body>
+	<div id="particles-js"></div>
+    <div class="container">
+        <div class="screen"> 
+            <h2>IoT Scanner</h2>
+            <form class="login" action="{{ url_for('login') }}" method="post">
+                <div class="login__field">
+                    <i class="login__icon fa fa-user"></i>
+                    <input type="text" id="username" name="username" class="login__input" placeholder="Username">
+                </div>
+                <div class="login__field">
+                    <i class="login__icon fa fa-lock"></i>
+                    <input type="password" id="password" name="password" class="login__input" placeholder="Password">
+                </div>
+                <button type="submit" class="button login__submit">Login</button>
+            </form>
+        </div>
+    </div>
+	<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+	<script src="{{ url_for('static', filename='js/particles.js') }}"></script>
+</body>
+
+
+	
+

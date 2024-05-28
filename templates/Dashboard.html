@@ -1,0 +1,200 @@
+<!-- HTML of Dashboard Page -->
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashstyle.css') }}">
+
+    <nav class="navbar navbar-expand-sm navbar-dark ">
+        <div class="container-fluid">
+          <ul class="navbar-nav mr-auto">
+            <li>
+                <a class="navbar-brand" href="{{ url_for('dashboard') }}">IoT Scanner</a>
+            </li>
+
+          </ul>
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+</head>
+
+<body>
+    <div id="particles-js"></div>
+    <div class="container py -2">
+        <div class="container-fluid center-text">
+            <h2 class="display-4">Hello, admin!</h2>
+            <p class="display-5">Welcome to Dashboard !</p><br>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-12 text-center">
+                <form action="{{ url_for('dashboard') }}" method="post" class="d-inline">
+                    <input type="submit" class="btn btn-dark btn-lg mr-2" value="Scan">
+                </form>
+                <form action="{{ url_for('refresh') }}" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-dark btn-lg mr-2">Refresh</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container mt-1">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 table-responsive scrollable-table">
+                {% if devices %}
+                <table class="table table-striped mt-4">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Device Info</th>
+                            <th>Action</th>
+                            <th>PCAP</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-light">
+                        {% for device in devices %}
+                        <tr>
+                            <td>
+                                {% if device.display_name %}
+                                <b>Name:</b> {{ device.display_name}} <br>
+                                <b>MAC Address:</b> {{ device.mac }}
+                                {% else %}
+                                <b>IP Address:</b> {{ device.ip }} <br>
+                                <b>MAC Address:</b> {{ device.mac }}
+                                {% endif %}
+                            </td>
+                            <td><button onclick="editUser('{{ device.ip }}', '{{ device.mac }}')" class="btn btn-warning btn-sm">Update</button></td>
+                            <td><button onclick="capture_Pcap('{{ device.ip }}', '{{ device.mac }}')" class="btn btn-success btn-sm">Capture</button></td>
+                            
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>    
+                {% endif %}
+            </div>
+            <div class="container-sm">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="text-{{ category }} text-center bd-text">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+
+        <div class="container mt-1">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 table-responsive scrollable-table">
+                    {% if records %}
+                    <table class="table table-striped mt-4">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>IP Adddress</th>
+                                <th>Mac Address</th>
+                                <th>Device Name</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-light">
+                            {% for record in records %}
+                            <tr>
+                                <td>{{ record[1] }}</td>
+                                <td>{{ record[2] }}</td>
+                                <td>{{ record[3] }}</td>
+                                <td>{{ record[4] }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>    
+                    {% endif %}
+                </div>
+            </div>
+        
+            <div id="pcapModal" class="modal" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Capture PCAP</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closeModal('pcapModal')">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="pcapForm" action="/capture_pcap" method="post">
+                                <div class="form-group">
+                                    <label for="capture_ip">Device IP:</label>
+                                    <input id="capture_ip" name="ip" class="form-control" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label for="capture_mac">Device MAC:</label>
+                                    <input id="capture_mac" name="mac" class="form-control" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label for="packets">Number of packets:</label>
+                                    <input type="number" id="packets" name="packets" class="form-control" required>
+                                </div>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="closeModal('pcapModal')">Close</button>
+                                <input type="submit" class="btn btn-primary" value="Capture">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+            <!-- Modal for editing device information -->
+            <div id="editModal" class="modal" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Device Information</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closeModal('editModal')">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            
+                            <form id="editForm" action="/update_device" method="post">
+                                <div class="form-group">
+                                    <label for="edit_ip">Device IP:</label>
+                                    <input id="edit_ip" name="ip" class="form-control" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label for="edit_mac">Device MAC:</label>
+                                    <input id="edit_mac" name="mac" class="form-control" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label for="device_name">Device Name:</label>
+                                    <input type="text" id="device_name" name="device_name" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="device_description">Device Description:</label>
+                                    <input type="text" id="device_description" name="device_description" class="form-control" required>
+                                </div>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="closeModal('editModal')">Close</button>
+                                <input type="submit" class="btn btn-success" value="Save">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ url_for('static', filename='js/particles.js') }}"></script>
+</body>
+</html>
